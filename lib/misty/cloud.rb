@@ -4,11 +4,50 @@ require 'misty/auth/auth_v3'
 require 'misty/http/header'
 
 module Misty
+
   # Cloud is the OpenStack cloud entry point
   #
   # ==== Attributes
   #
   # * +args+ - Hash of credentials and configuration parameters
+  #
+  # ==== Examples
+  # Initialize with authentication
+  #   require 'misty'
+  #    auth = {
+  #      :url                => 'http://localhost:5000',
+  #      :user               => 'admin',
+  #      :password           => 'secret',
+  #      :domain             => 'default',
+  #      :project            => 'admin',
+  #      :project_domain_id  => 'default'
+  #    }
+  #    cloud = Misty::Cloud.new(:auth => auth, :log_file => './misty.log')
+  #
+  # Consume services
+  #    pp openstack.compute.list_servers.body
+  #    pp openstack.compute.list_flavors.body
+  #    networks = cloud.networking.list_networks
+  #    first_network_id = networks.body['networks'][0]['id']
+  #    first_network = cloud.networking.show_network_details(first_network_id)
+  #    network = Misty.to_json(:network => {:name => 'misty-example'})
+  #    cloud.network.create_network(network)
+  #    v1 = cloud.baremetal.show_v1_api
+  #
+  # A V2 style authentication using tenant (no project nor domain)
+  #    auth_v2 = {
+  #      :url      => 'http://localhost:5000',
+  #      :user     => 'admin',
+  #      :password => 'secret',
+  #      :tenant   => 'admin',
+  #    }
+  #    cloud = Misty::Cloud.new(:auth => auth_v2)
+  #    cloud.identity(:base_path => '').list_users
+  #
+  # Authenticate using a V3 style and force the identity service to use v2.0
+  #    cloud = Misty::Cloud.new(:auth => auth_v3)
+  #    cloud.identity(:api_version => 'v2.0').list_tenants
+
   class Cloud
     attr_reader :auth
 
@@ -129,6 +168,46 @@ module Misty
       @object_storage ||= build_service(args)
     end
 
+    # ==== Example
+    #
+    #    heat_template = {
+    #      "files": {},
+    #      "disable_rollback": true,
+    #      "parameters": {
+    #        "flavor": "m1.tiny"
+    #      },
+    #      "stack_name": "test_stack",
+    #      "template": {
+    #        "heat_template_version": "2013-05-23",
+    #        "description": "Template to test heat",
+    #        "parameters": {
+    #          "flavor": {
+    #            "default": "m1.small",
+    #            "type": "string"
+    #          }
+    #        },
+    #        "resources": {
+    #          "hello_world": {
+    #            "type": "OS::Nova::Server",
+    #            "properties": {
+    #              "flavor": { "get_param": "flavor" },
+    #              "image": "50fd6f2b-d9f0-41b6-b0a9-4482bfe61914",
+    #              "user_data": "#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
+    #            }
+    #          }
+    #        }
+    #      },
+    #      "timeout_mins": 60
+    #    }
+    #
+    #    cloud = Misty::Cloud.new(:auth => { ... })
+    #    data_heat_template = Misty.to_json(heat_template)
+    #    response = cloud.orchestration.create_stack(data_heat_template)
+    #    id = response.body['stack']['id']
+    #
+    #    stack = cloud.orchestration.show_stack_details('test_stack', id)
+    #    pp stack.body
+    #
     def orchestration(args = {})
       args[:service] = :orchestration
       @orchestration ||= build_service(args)

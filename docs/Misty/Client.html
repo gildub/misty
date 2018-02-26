@@ -163,7 +163,7 @@
 
         <div class="method-description">
           
-          <p>The following options are available:</p>
+          <h4 id="method-c-new-label-Options"><a href="Client/Options.html">Options</a><span><a href="#method-c-new-label-Options">&para;</a> <a href="#top">&uarr;</a></span></h4>
 <ul><li>
 <p>:api_version Type: String Default: The latest supported version - See <a
 href="../Misty.html#method-c-services">Misty.services</a> for other
@@ -194,7 +194,7 @@ Type: String Allowed values: “CURRENT”, “LATEST”, “SUPPORTED”, or a 
 number such as “2.0” or “3” Default: `“CURRENT”`</p>
 </li></ul>
 
-<h4 id="method-c-new-label-Example">Example<span><a href="#method-c-new-label-Example">&para;</a> <a href="#top">&uarr;</a></span></h4>
+<h4 id="method-c-new-label-Examples">Examples<span><a href="#method-c-new-label-Examples">&para;</a> <a href="#top">&uarr;</a></span></h4>
 
 <pre class="ruby"><span class="ruby-identifier">openstack</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Cloud</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:auth</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-identifier">auth</span>, <span class="ruby-value">:log_level</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-value">0</span>, <span class="ruby-value">:identity</span> <span class="ruby-operator">=&gt;</span> {<span class="ruby-value">:region_id</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;regionTwo&#39;</span>}, <span class="ruby-value">:compute</span> <span class="ruby-operator">=&gt;</span> {<span class="ruby-value">:version</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;2.27&#39;</span>, <span class="ruby-value">:interface</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;admin&#39;</span>})
 </pre>
@@ -203,11 +203,11 @@ number such as “2.0” or “3” Default: `“CURRENT”`</p>
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 49</span>
+            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 69</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">auth</span>, <span class="ruby-identifier">config</span>, <span class="ruby-identifier">options</span> = {})
   <span class="ruby-ivar">@auth</span> = <span class="ruby-identifier">auth</span>
   <span class="ruby-ivar">@config</span> = <span class="ruby-identifier">config</span>
-  <span class="ruby-ivar">@options</span> = <span class="ruby-identifier">setup</span>(<span class="ruby-identifier">options</span>)
+  <span class="ruby-ivar">@options</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Client</span><span class="ruby-operator">::</span><span class="ruby-constant">Options</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">options</span>)
   <span class="ruby-ivar">@uri</span> = <span class="ruby-constant">URI</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-ivar">@auth</span>.<span class="ruby-identifier">get_url</span>(<span class="ruby-ivar">@options</span>.<span class="ruby-identifier">service_names</span>, <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">region_id</span>, <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">interface</span>))
   <span class="ruby-ivar">@base_path</span> = <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">base_path</span> <span class="ruby-operator">?</span> <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">base_path</span> <span class="ruby-operator">:</span> <span class="ruby-ivar">@uri</span>.<span class="ruby-identifier">path</span>
   <span class="ruby-ivar">@base_path</span> = <span class="ruby-ivar">@base_path</span>.<span class="ruby-identifier">chomp</span>(<span class="ruby-string">&#39;/&#39;</span>)
@@ -248,20 +248,24 @@ number such as “2.0” or “3” Default: `“CURRENT”`</p>
 
         <div class="method-description">
           
-          <p>Mixing classes to override When a catalog provides a base path and the <a
+          <p>When a catalog provides a base path and the <a
 href="Service.html">Service</a> API definition containts the generic
 equivalent as prefix then the preifx is redundant and must be removed from
-the path. For example: Catalog provides &#39;<a
-href="http://192.0.2.21:8004/v1/48985e6b8da145699d411f12a3459fca">192.0.2.21:8004/v1/48985e6b8da145699d411f12a3459fca</a>&#39;
-and <a href="Service.html">Service</a> API has
+the path.</p>
+
+<p>To use Mixing classes must override</p>
+
+<p>For exampe, if a Catalog is defined with &#39;<a
+href="http://192.0.2.21:8004/v1/48985e6b8da145699d411f12a3459fc">192.0.2.21:8004/v1/48985e6b8da145699d411f12a3459fc</a>&#39;
+and <a href="Service.html">Service</a> API resource has
 &#39;/v1/{tenant_id}/stacks&#39; then the path prefix is ignored and path
-is only &#39;/stacks&#39;</p>
+is only <code>/stacks</code></p>
           
           
 
           
           <div class="method-source-code" id="prefix_path_to_ignore-source">
-            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 70</span>
+            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 92</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">prefix_path_to_ignore</span>
   <span class="ruby-string">&#39;&#39;</span>
 <span class="ruby-keyword">end</span></pre>
@@ -288,13 +292,40 @@ is only &#39;/stacks&#39;</p>
 
         <div class="method-description">
           
-          
+          <p>Provides requests available for current service</p>
+
+<h4 id="method-i-requests-label-Example">Example<span><a href="#method-i-requests-label-Example">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<pre># Output truncated
+cloud.compute.requests
+=&gt; [:add_a_single_tag,
+ :add_associate_fixed_ip_addfixedip_action_deprecated,
+ :add_associate_floating_ip_addfloatingip_action_deprecated,
+ :add_flavor_access_to_tenant_addtenantaccess_action,
+ :add_host,
+ :add_network,
+ :add_security_group_to_a_server_addsecuritygroup_action,
+ :associate_host_deprecated,
+ :attach_a_volume_to_an_instance,
+ :bulk_delete_floating_ips,
+ :capacities,
+ :change_administrative_password_changepassword_action,
+ :check_tag_existence,
+ :clear_admin_password,
+ :confirm_resized_server_confirmresize_action,
+ :create_agent_build,
+ :create_aggregate,
+ :create_allocate_floating_ip_address,
+ :create_assisted_volume_snapshots,
+ :create_cell,
+ :create_cloudpipe,
+ :create_console]</pre>
           
           
 
           
           <div class="method-source-code" id="requests-source">
-            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 74</span>
+            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 125</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">requests</span>
   <span class="ruby-identifier">requests_api</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">requests_custom</span>
 <span class="ruby-keyword">end</span></pre>

@@ -42,74 +42,12 @@ allows:
 ``` ruby
 gem install misty
 ```
-
 ## Quick start
-```ruby
-require 'misty'
-
-auth_v3 = {
-  :url      => 'http://localhost:5000',
-  :user               => 'admin',
-  :password           => 'secret',
-  :domain             => 'default',
-  :project            => 'admin',
-  :project_domain_id  => 'default'
-}
-
-openstack = Misty::Cloud.new(:auth => auth_v3)
-
-puts openstack.compute.list_servers.body
-puts openstack.compute.list_flavors.body
-networks = openstack.networking.list_networks
-network_id = networks.body['networks'][0]['id']
-network = openstack.networking.show_network_details(network_id)
-puts network.body
-```
+See [Misty Cloud](https://flystack.github.io/misty/Misty/Cloud.html).
 
 ## Services
-Once a Misty::Cloud object is created, the Openstack services can be used.
 
-The Cloud object is authenticated by the identity server (bootstrap) and is provided with a service catalog.
-When an OpenStack API service is required, the catalog entry's endpoint is used and the service is dynamically called.
-
-Each service name (i.e. `compute`) is the object handling API requests.
-
- ```ruby
-openstack = Misty::Cloud.new(:auth => { ... })
-openstack.compute.list_servers
-openstack.networking.list_networks
-data = Misty.to_json('network': {'name': 'my-network'})
-openstack.networking.create_network(data)
-```
-
-To obtain the list of supported services:
-```ruby
-> require 'misty'
-> puts Misty.services
-application_catalog: murano, versions: ["v1"]
-alarming: aodh, versions: ["v2"]
-backup: freezer, versions: ["v1"]
-baremetal: ironic, microversion: v1
-block_storage: cinder, versions: ["v2", "v1"], microversion: v3
-clustering: senlin, versions: ["v1"]
-compute: nova, microversion: v2.1
-container_infrastructure_management: magnum, microversion: v1
-data_processing: sahara, versions: ["v1.1"]
-data_protection_orchestration: karbor, versions: ["v1"]
-database: trove, versions: ["v1.0"]
-dns: designate, versions: ["v2"]
-identity: keystone, versions: ["v3", "v2.0"]
-image: glance, versions: ["v2", "v1"]
-load_balancer: octavia, versions: ["v2.0"]
-messaging: zaqar, versions: ["v2"]
-metering: ceilometer, versions: ["v2"]
-networking: neutron, versions: ["v2.0"]
-nfv_orchestration: tacker, versions: ["v1.0"]
-object_storage: swift, versions: ["v1"]
-orchestration: heat, versions: ["v1"]
-search: searchlight, versions: ["v1"]
-shared_file_systems: manila, microversion: v2
-```
+To see the list of [supported services](https://flystack.github.io/misty/Misty.html).
 
 ### Headers
 HTTP headers can be defined at 3 different levels:
@@ -132,35 +70,8 @@ Meanwhile `data` doesn't work because it's ambiguous between `data_processing` a
 ## Openstack service name
 Different service names can be used for a specific Openstack Service by using the :service_names option (see below).
 
-## Requests
-The #requests method provides the available requests for a service, for example:
-```ruby
-openstack.compute.requests
-
-=> [:add_a_single_tag,
- :add_associate_fixed_ip_addfixedip_action_deprecated,
- :add_associate_floating_ip_addfloatingip_action_deprecated,
- :add_flavor_access_to_tenant_addtenantaccess_action,
- :add_host,
- :add_network,
- :add_security_group_to_a_server_addsecuritygroup_action,
- :associate_host_deprecated,
- :attach_a_volume_to_an_instance,
- :bulk_delete_floating_ips,
- :capacities,
- :change_administrative_password_changepassword_action,
- :check_tag_existence,
- :clear_admin_password,
- :confirm_resized_server_confirmresize_action,
- :create_agent_build,
- :create_aggregate,
- :create_allocate_floating_ip_address,
- :create_assisted_volume_snapshots,
- :create_cell,
- :create_cloudpipe,
- :create_console,
-.../...
-```
+## List Requests
+See [Client requests](https://flystack.github.io/misty/Misty/Cloud.html#rl#method-i-requests).
 
 ## Setup
 

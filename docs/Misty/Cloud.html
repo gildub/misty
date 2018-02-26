@@ -52,6 +52,15 @@
   </div>
 
   
+<div class="nav-section">
+  <h3>Table of Contents</h3>
+
+  <ul class="link-list" role="directory">
+    <li><a href="#class-Misty::Cloud-label-Attributes">Attributes</a>
+    <li><a href="#class-Misty::Cloud-label-Examples">Examples</a>
+  </ul>
+</div>
+
 
   <div id="class-metadata">
     
@@ -147,6 +156,52 @@
 <p><code>args</code> - Hash of credentials and configuration parameters</p>
 </li></ul>
 
+<h4 id="class-Misty::Cloud-label-Examples">Examples<span><a href="#class-Misty::Cloud-label-Examples">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<p>Initialize with authentication</p>
+
+<pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;misty&#39;</span>
+ <span class="ruby-identifier">auth</span> = {
+   <span class="ruby-value">:url</span>                <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;http://localhost:5000&#39;</span>,
+   <span class="ruby-value">:user</span>               <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;admin&#39;</span>,
+   <span class="ruby-value">:password</span>           <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;secret&#39;</span>,
+   <span class="ruby-value">:domain</span>             <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;default&#39;</span>,
+   <span class="ruby-value">:project</span>            <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;admin&#39;</span>,
+   <span class="ruby-value">:project_domain_id</span>  <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;default&#39;</span>
+ }
+ <span class="ruby-identifier">cloud</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Cloud</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:auth</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-identifier">auth</span>, <span class="ruby-value">:log_file</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;./misty.log&#39;</span>)
+</pre>
+
+<p>Consume services</p>
+
+<pre class="ruby"><span class="ruby-identifier">pp</span> <span class="ruby-identifier">openstack</span>.<span class="ruby-identifier">compute</span>.<span class="ruby-identifier">list_servers</span>.<span class="ruby-identifier">body</span>
+<span class="ruby-identifier">pp</span> <span class="ruby-identifier">openstack</span>.<span class="ruby-identifier">compute</span>.<span class="ruby-identifier">list_flavors</span>.<span class="ruby-identifier">body</span>
+<span class="ruby-identifier">networks</span> = <span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">networking</span>.<span class="ruby-identifier">list_networks</span>
+<span class="ruby-identifier">first_network_id</span> = <span class="ruby-identifier">networks</span>.<span class="ruby-identifier">body</span>[<span class="ruby-string">&#39;networks&#39;</span>][<span class="ruby-value">0</span>][<span class="ruby-string">&#39;id&#39;</span>]
+<span class="ruby-identifier">first_network</span> = <span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">networking</span>.<span class="ruby-identifier">show_network_details</span>(<span class="ruby-identifier">first_network_id</span>)
+<span class="ruby-identifier">network</span> = <span class="ruby-constant">Misty</span>.<span class="ruby-identifier">to_json</span>(<span class="ruby-value">:network</span> <span class="ruby-operator">=&gt;</span> {<span class="ruby-value">:name</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;misty-example&#39;</span>})
+<span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">network</span>.<span class="ruby-identifier">create_network</span>(<span class="ruby-identifier">network</span>)
+<span class="ruby-identifier">v1</span> = <span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">baremetal</span>.<span class="ruby-identifier">show_v1_api</span>
+</pre>
+
+<p>A V2 style authentication using tenant (no project nor domain)</p>
+
+<pre class="ruby"><span class="ruby-identifier">auth_v2</span> = {
+  <span class="ruby-value">:url</span>      <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;http://localhost:5000&#39;</span>,
+  <span class="ruby-value">:user</span>     <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;admin&#39;</span>,
+  <span class="ruby-value">:password</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;secret&#39;</span>,
+  <span class="ruby-value">:tenant</span>   <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;admin&#39;</span>,
+}
+<span class="ruby-identifier">cloud</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Cloud</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:auth</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-identifier">auth_v2</span>)
+<span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">identity</span>(<span class="ruby-value">:base_path</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;&#39;</span>).<span class="ruby-identifier">list_users</span>
+</pre>
+
+<p>Authenticate using a V3 style and force the identity service to use v2.0</p>
+
+<pre class="ruby"><span class="ruby-identifier">cloud</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Cloud</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:auth</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-identifier">auth_v3</span>)
+<span class="ruby-identifier">cloud</span>.<span class="ruby-identifier">identity</span>(<span class="ruby-value">:api_version</span> <span class="ruby-operator">=&gt;</span> <span class="ruby-string">&#39;v2.0&#39;</span>).<span class="ruby-identifier">list_tenants</span>
+</pre>
+
   </section>
 
   
@@ -206,7 +261,7 @@
 
           
           <div class="method-source-code" id="dot_to_underscore-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 15</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 54</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier ruby-title">dot_to_underscore</span>(<span class="ruby-identifier">val</span>)
   <span class="ruby-identifier">val</span>.<span class="ruby-identifier">gsub</span>(<span class="ruby-regexp">/\./</span>,<span class="ruby-string">&#39;_&#39;</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -239,7 +294,7 @@
 
           
           <div class="method-source-code" id="new-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 19</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 58</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">initialize</span>(<span class="ruby-identifier">args</span>)
   <span class="ruby-ivar">@config</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Config</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">args</span>)
   <span class="ruby-ivar">@auth</span> = <span class="ruby-constant">Misty</span><span class="ruby-operator">::</span><span class="ruby-constant">Auth</span>.<span class="ruby-identifier">factory</span>(<span class="ruby-identifier">args</span>[<span class="ruby-value">:auth</span>], <span class="ruby-ivar">@config</span>)
@@ -281,7 +336,7 @@
 
           
           <div class="method-source-code" id="alarming-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 37</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 76</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">alarming</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:alarming</span>
   <span class="ruby-ivar">@alarming</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -315,7 +370,7 @@
 
           
           <div class="method-source-code" id="application_catalog-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 32</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 71</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">application_catalog</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:application_catalog</span>
   <span class="ruby-ivar">@application_catalog</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -349,7 +404,7 @@
 
           
           <div class="method-source-code" id="backup-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 42</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 81</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">backup</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:backup</span>
   <span class="ruby-ivar">@backup</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -383,7 +438,7 @@
 
           
           <div class="method-source-code" id="baremetal-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 47</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 86</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">baremetal</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:baremetal</span>
   <span class="ruby-ivar">@baremetal</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -417,7 +472,7 @@
 
           
           <div class="method-source-code" id="block_storage-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 52</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 91</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">block_storage</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:block_storage</span>
   <span class="ruby-ivar">@block_storage</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -455,7 +510,7 @@
 
           
           <div class="method-source-code" id="build_service-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 24</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 63</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">build_service</span>(<span class="ruby-identifier">args</span>)
   <span class="ruby-identifier">service</span> = <span class="ruby-constant">Misty</span>.<span class="ruby-identifier">services</span>.<span class="ruby-identifier">find</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">service</span><span class="ruby-operator">|</span> <span class="ruby-identifier">service</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>]}
   <span class="ruby-identifier">args</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value">:service</span>)
@@ -492,7 +547,7 @@
 
           
           <div class="method-source-code" id="clustering-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 57</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 96</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">clustering</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:clustering</span>
   <span class="ruby-ivar">@clustering</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -526,7 +581,7 @@
 
           
           <div class="method-source-code" id="compute-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 62</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 101</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">compute</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:compute</span>
   <span class="ruby-ivar">@compute</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -560,7 +615,7 @@
 
           
           <div class="method-source-code" id="container_infrastructure_management-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 67</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 106</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">container_infrastructure_management</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:container_infrastructure_management</span>
   <span class="ruby-ivar">@container_infrastructure_management</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -594,7 +649,7 @@
 
           
           <div class="method-source-code" id="data_processing-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 72</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 111</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">data_processing</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:data_processing</span>
   <span class="ruby-ivar">@data_processing</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -628,7 +683,7 @@
 
           
           <div class="method-source-code" id="data_protection_orchestration-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 77</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 116</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">data_protection_orchestration</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:data_protection_orchestration</span>
   <span class="ruby-ivar">@data_protection_orchestration</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -662,7 +717,7 @@
 
           
           <div class="method-source-code" id="database-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 82</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 121</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">database</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:database</span>
   <span class="ruby-ivar">@database</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -696,7 +751,7 @@
 
           
           <div class="method-source-code" id="dns-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 87</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 126</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">dns</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:dns</span>
   <span class="ruby-ivar">@dns</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -762,7 +817,7 @@
 
           
           <div class="method-source-code" id="identity-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 92</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 131</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">identity</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:identity</span>
   <span class="ruby-ivar">@identity</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -796,7 +851,7 @@
 
           
           <div class="method-source-code" id="image-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 97</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 136</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">image</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:image</span>
   <span class="ruby-ivar">@image</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -830,7 +885,7 @@
 
           
           <div class="method-source-code" id="load_balancer-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 102</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 141</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">load_balancer</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:load_balancer</span>
   <span class="ruby-ivar">@load_balancer</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -864,7 +919,7 @@
 
           
           <div class="method-source-code" id="messaging-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 107</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 146</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">messaging</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:messaging</span>
   <span class="ruby-ivar">@messaging</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -898,7 +953,7 @@
 
           
           <div class="method-source-code" id="metering-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 112</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 151</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">metering</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:metering</span>
   <span class="ruby-ivar">@metering</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -932,7 +987,7 @@
 
           
           <div class="method-source-code" id="networking-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 117</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 156</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">networking</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:networking</span>
   <span class="ruby-ivar">@networking</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -966,7 +1021,7 @@
 
           
           <div class="method-source-code" id="nfv_orchestration-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 122</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 161</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">nfv_orchestration</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:nfv_orchestration</span>
   <span class="ruby-ivar">@nfv_orchestration</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -1000,7 +1055,7 @@
 
           
           <div class="method-source-code" id="object_storage-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 127</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 166</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">object_storage</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:object_storage</span>
   <span class="ruby-ivar">@object_storage</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -1028,13 +1083,51 @@
 
         <div class="method-description">
           
-          
+          <h4 id="method-i-orchestration-label-Example">Example<span><a href="#method-i-orchestration-label-Example">&para;</a> <a href="#top">&uarr;</a></span></h4>
+
+<pre>heat_template = {
+  &quot;files&quot;: {},
+  &quot;disable_rollback&quot;: true,
+  &quot;parameters&quot;: {
+    &quot;flavor&quot;: &quot;m1.tiny&quot;
+  },
+  &quot;stack_name&quot;: &quot;test_stack&quot;,
+  &quot;template&quot;: {
+    &quot;heat_template_version&quot;: &quot;2013-05-23&quot;,
+    &quot;description&quot;: &quot;Template to test heat&quot;,
+    &quot;parameters&quot;: {
+      &quot;flavor&quot;: {
+        &quot;default&quot;: &quot;m1.small&quot;,
+        &quot;type&quot;: &quot;string&quot;
+      }
+    },
+    &quot;resources&quot;: {
+      &quot;hello_world&quot;: {
+        &quot;type&quot;: &quot;OS::Nova::Server&quot;,
+        &quot;properties&quot;: {
+          &quot;flavor&quot;: { &quot;get_param&quot;: &quot;flavor&quot; },
+          &quot;image&quot;: &quot;50fd6f2b-d9f0-41b6-b0a9-4482bfe61914&quot;,
+          &quot;user_data&quot;: &quot;#!/bin/bash -xv\necho \&quot;hello world\&quot; &amp;gt; /root/hello-world.txt\n&quot;
+        }
+      }
+    }
+  },
+  &quot;timeout_mins&quot;: 60
+}
+
+cloud = Misty::Cloud.new(:auth =&gt; { ... })
+data_heat_template = Misty.to_json(heat_template)
+response = cloud.orchestration.create_stack(data_heat_template)
+id = response.body[&#39;stack&#39;][&#39;id&#39;]
+
+stack = cloud.orchestration.show_stack_details(&#39;test_stack&#39;, id)
+pp stack.body</pre>
           
           
 
           
           <div class="method-source-code" id="orchestration-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 132</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 211</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">orchestration</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:orchestration</span>
   <span class="ruby-ivar">@orchestration</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -1068,7 +1161,7 @@
 
           
           <div class="method-source-code" id="search-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 137</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 216</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">search</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:search</span>
   <span class="ruby-ivar">@search</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)
@@ -1102,7 +1195,7 @@
 
           
           <div class="method-source-code" id="shared_file_systems-source">
-            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 142</span>
+            <pre><span class="ruby-comment"># File lib/misty/cloud.rb, line 221</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">shared_file_systems</span>(<span class="ruby-identifier">args</span> = {})
   <span class="ruby-identifier">args</span>[<span class="ruby-value">:service</span>] = <span class="ruby-value">:shared_file_systems</span>
   <span class="ruby-ivar">@shared_file_systems</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">build_service</span>(<span class="ruby-identifier">args</span>)

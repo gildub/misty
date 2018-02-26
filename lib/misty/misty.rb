@@ -1,5 +1,8 @@
 require 'misty/services'
 
+# Misty is a HTTP client for OpenStack APIs, aiming to be fast, flexible and exhaustive.
+# Misty acts as a conduit to OpenStack APIs by handling requests as transparently as possible.
+
 module Misty
   SERVICES = [
     { name: :application_catalog,                 project: :murano,      versions: ['v1']},
@@ -61,6 +64,10 @@ module Misty
     end
     return false
   end
+
+  # Provides list of supported services
+  # ==== Example
+  #     pp Misty.services
 
   def self.services
     services = Misty::Services.new

@@ -65,7 +65,17 @@
 
     
     
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
     
+    <li ><a href="#method-i-setup">#setup</a>
+    
+  </ul>
+</div>
+
   </div>
 </nav>
 
@@ -201,6 +211,62 @@
     
 
     
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-setup" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">setup</span><span
+            class="method-args">(params = {})</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="setup-source">
+            <pre><span class="ruby-comment"># File lib/misty/client.rb, line 7</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier ruby-title">setup</span>(<span class="ruby-identifier">params</span> = {})
+  <span class="ruby-ivar">@base_path</span>           = <span class="ruby-identifier">params</span>[<span class="ruby-value">:base_path</span>]       <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:base_path</span>] <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+  <span class="ruby-ivar">@base_url</span>            = <span class="ruby-identifier">params</span>[<span class="ruby-value">:base_url</span>]        <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:base_url</span>] <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+  <span class="ruby-ivar">@headers</span>             = <span class="ruby-identifier">params</span>[<span class="ruby-value">:headers</span>]         <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:headers</span>] <span class="ruby-operator">:</span> {}
+  <span class="ruby-ivar">@interface</span>           = <span class="ruby-identifier">params</span>[<span class="ruby-value">:interface</span>]       <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:interface</span>] <span class="ruby-operator">:</span> <span class="ruby-ivar">@config</span>.<span class="ruby-identifier">interface</span>
+  <span class="ruby-ivar">@region_id</span>           = <span class="ruby-identifier">params</span>[<span class="ruby-value">:region_id</span>]       <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:region_id</span>] <span class="ruby-operator">:</span> <span class="ruby-ivar">@config</span>.<span class="ruby-identifier">region_id</span>
+  <span class="ruby-ivar">@service_names</span>       = <span class="ruby-identifier">params</span>[<span class="ruby-value">:service_name</span>]    <span class="ruby-operator">?</span> <span class="ruby-identifier">service_names</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:service_name</span>] <span class="ruby-operator">:</span> <span class="ruby-identifier">service_names</span>
+  <span class="ruby-ivar">@ssl_verify_mode</span>     = <span class="ruby-identifier">params</span>[<span class="ruby-value">:ssl_verify_mode</span>].<span class="ruby-identifier">nil?</span> <span class="ruby-operator">?</span> <span class="ruby-ivar">@config</span>.<span class="ruby-identifier">ssl_verify_mode</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:ssl_verify_mode</span>]
+  <span class="ruby-ivar">@version</span>             = <span class="ruby-identifier">params</span>[<span class="ruby-value">:version</span>]         <span class="ruby-operator">?</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:version</span>] <span class="ruby-operator">:</span> <span class="ruby-string">&#39;CURRENT&#39;</span>
+
+  <span class="ruby-keyword">unless</span> <span class="ruby-constant">INTERFACES</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-ivar">@interface</span>)
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">InvalidDataError</span>, <span class="ruby-node">&quot;Options &#39;:interface&#39; must be one of #{INTERFACES}&quot;</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@ssl_verify_mode</span> <span class="ruby-operator">==</span> <span class="ruby-operator">!</span><span class="ruby-operator">!</span><span class="ruby-ivar">@ssl_verify_mode</span>
+    <span class="ruby-identifier">raise</span> <span class="ruby-constant">InvalidDataError</span>, <span class="ruby-string">&quot;Options &#39;:ssl_verify_mode&#39; must be a boolean&quot;</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
   </section>
 </main>
 
